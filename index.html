@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alo Rico Rico</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#fdf2f8;color:#333;min-height:100vh}
+header{background:linear-gradient(135deg,#ec4899,#3b82f6);color:#fff;padding:1.2rem;text-align:center}
+header h1{font-size:1.5rem}
+header p{font-size:.85rem;opacity:.9}
+nav{display:flex;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.1);position:sticky;top:0;z-index:9}
+nav button{flex:1;padding:.9rem;border:none;background:#fff;font-size:1rem;cursor:pointer;color:#666;border-bottom:3px solid transparent}
+nav button.active{color:#ec4899;border-bottom-color:#ec4899;font-weight:700}
+main{padding:1rem;max-width:900px;margin:0 auto}
+.seccion{display:none}
+.seccion.active{display:block}
+.tarjetas{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.8rem;margin-bottom:1.2rem}
+.tarjeta{background:#fff;border-radius:12px;padding:1rem;box-shadow:0 2px 8px rgba(0,0,0,.08);text-align:center}
+.tarjeta .valor{font-size:1.4rem;font-weight:800;color:#ec4899}
+.tarjeta .etiqueta{font-size:.75rem;color:#888;margin-top:.3rem}
+.tarjeta.azul .valor{color:#3b82f6}
+h2{margin:1.2rem 0 .6rem;font-size:1.1rem;color:#555}
+.buscador{width:100%;padding:.8rem;border:2px solid #fbcfe8;border-radius:10px;font-size:1rem;margin-bottom:.8rem;outline:none}
+.chips{display:flex;gap:.5rem;overflow-x:auto;padding-bottom:.5rem;margin-bottom:.8rem}
+.chip{white-space:nowrap;padding:.5rem 1rem;border-radius:20px;border:2px solid #fbcfe8;background:#fff;cursor:pointer;font-size:.85rem}
+.chip.active{background:#ec4899;color:#fff;border-color:#ec4899}
+.productos{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:.8rem}
+.prod{background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.08)}
+.prod .foto{height:110px;background:linear-gradient(135deg,#fce7f3,#dbeafe);display:flex;align-items:center;justify-content:center;font-size:2.5rem}
+.prod .info{padding:.7rem}
+.prod .nombre{font-weight:700;font-size:.9rem}
+.prod .cat{font-size:.7rem;color:#fff;background:#a78bfa;border-radius:8px;padding:.1rem .5rem;display:inline-block;margin:.3rem 0}
+.prod .desc{font-size:.75rem;color:#888;margin-bottom:.4rem}
+.prod .precio{font-weight:800;color:#ec4899;font-size:1rem}
+.prod .precio-t{font-size:.75rem;color:#3b82f6}
+.prod .stock{font-size:.7rem;color:#16a34a;margin-top:.2rem}
+footer{text-align:center;padding:1.5rem;color:#aaa;font-size:.75rem}
+.barra{height:8px;background:#f3f4f6;border-radius:4px;overflow:hidden;margin-top:.3rem}
+.barra div{height:100%;background:linear-gradient(90deg,#ec4899,#3b82f6);border-radius:4px}
+.top-item{display:flex;justify-content:space-between;align-items:center;padding:.5rem 0;border-bottom:1px solid #f3f4f6;font-size:.85rem}
+</style>
+</head>
+<body>
+<header>
+<h1>Alo Rico Rico</h1>
+<p>Actualizado: 2026-10-22</p>
+</header>
+<nav>
+<button class="active" onclick="tab('dash',this)">Resumen</button>
+<button onclick="tab('cat',this)">Catalogo</button>
+</nav>
+<main>
+<div id="dash" class="seccion active">
+<div class="tarjetas">
+<div class="tarjeta"><div class="valor">$122,255</div><div class="etiqueta">Inventario a costo</div></div>
+<div class="tarjeta azul"><div class="valor">$182,905</div><div class="etiqueta">Inventario a venta</div></div>
+<div class="tarjeta"><div class="valor">$158,600</div><div class="etiqueta">Total ventas</div></div>
+<div class="tarjeta azul"><div class="valor">$235,837</div><div class="etiqueta">Total compras</div></div>
+<div class="tarjeta"><div class="valor">$50,696</div><div class="etiqueta">Utilidad est.</div></div>
+<div class="tarjeta azul"><div class="valor">39</div><div class="etiqueta">Productos disponibles</div></div>
+</div>
+<h2>Top mas vendidos</h2>
+<div id="topv"></div>
+<h2>Top mas comprados</h2>
+<div id="topc"></div>
+</div>
+<div id="cat" class="seccion">
+<input class="buscador" id="buscar" placeholder="Buscar producto..." oninput="filtrar()">
+<div class="chips" id="chips"></div>
+<div class="productos" id="prods"></div>
+</div>
+</main>
+<footer>Alo Rico Rico - Precios en CUP</footer>
+<script>
+const D={"resumen": {"total_costo": 122255, "total_venta": 182905, "total_compras": 235837, "total_ventas": 158600, "utilidad": 50696, "num_productos": 55, "num_disponibles": 39, "top_vendidos": [{"producto": "caramelos de leche", "unidades": 69, "total": 2415}, {"producto": "alitas de pollo", "unidades": 40, "total": 32000}, {"producto": "Picadillo MDM", "unidades": 33, "total": 24450}, {"producto": "picadillo de pollo americano", "unidades": 25, "total": 18480}, {"producto": "Galleta Vaquita", "unidades": 21, "total": 2450}, {"producto": "espaguetis", "unidades": 18, "total": 13360}, {"producto": "Galletas Halo's", "unidades": 17, "total": 2040}, {"producto": "Salami", "unidades": 15, "total": 4930}, {"producto": "sazon fresko", "unidades": 15, "total": 1500}, {"producto": "Bombones", "unidades": 12, "total": 600}], "top_comprados": [{"producto": "sazon fresko", "unidades": 360, "total": 21960}, {"producto": "caramelos de leche", "unidades": 150, "total": 3900}, {"producto": "Bombones", "unidades": 100, "total": 4300}, {"producto": "Jaba Nylon", "unidades": 100, "total": 800}, {"producto": "parranda 500ml", "unidades": 75, "total": 40575}, {"producto": "Sazon Cerdito", "unidades": 60, "total": 3900}, {"producto": "Sazón CominoCPimienta", "unidades": 50, "total": 3750}, {"producto": "Picadillo MDM", "unidades": 40, "total": 22800}, {"producto": "alitas de pollo", "unidades": 40, "total": 30000}, {"producto": "picadillo de pollo americano", "unidades": 40, "total": 24400}], "categorias": ["Varios"]}, "catalogo": [{"nombre": "Arroz", "categoria": "Varios", "precio": 750, "precio_transf": 975, "stock": 18.0, "descripcion": "Alimentos - Se vende por paquete", "unidad": "paquete"}, {"nombre": "azucar pateko", "categoria": "Varios", "precio": 1250, "precio_transf": 1625, "stock": 9.0, "descripcion": "Alimentos - Se vende por unidad", "unidad": "unidad"}, {"nombre": "espaguetis", "categoria": "Varios", "precio": 730, "precio_transf": 950, "stock": 20.0, "descripcion": "Alimentos - Se vende por unidad", "unidad": "unidad"}, {"nombre": "Leche Condensada", "categoria": "Varios", "precio": 9800, "precio_transf": 12740, "stock": 1.0, "descripcion": "Alimentos - Se vende por unidad", "unidad": "unidad"}, {"nombre": "pasta de Tomate", "categoria": "Varios", "precio": 300, "precio_transf": 390, "stock": 9.0, "descripcion": "Alimentos - Se vende por unidad", "unidad": "unidad"}, {"nombre": "picadillo de pollo americano", "categoria": "Varios", "precio": 680, "precio_transf": 884, "stock": 13.0, "descripcion": "Cárnicos - Se vende por unidad", "unidad": "unidad"}, {"nombre": "jabon chino", "categoria": "Varios", "precio": 300, "precio_transf": 390, "stock": 4.0, "descripcion": "Aseo - Se vende por unidad", "unidad": "unidad"}, {"nombre": "parranda 500ml", "categoria": "Varios", "precio": 730, "precio_transf": 949, "stock": 55.0, "descripcion": "Bebidas - Se vende por unidad", "unidad": "unidad"}, {"nombre": "sazon completo", "categoria": "Varios", "precio": 150, "precio_transf": 195, "stock": 9.0, "descripcion": "Condimentos - Se vende por unidad", "unidad": "unidad"}, {"nombre": "sazon espaguetis", "categoria": "Varios", "precio": 150, "precio_transf": 195, "stock": 30.0, "descripcion": "Condimentos - Se vende por unidad", "unidad": "unidad"}, {"nombre": "sazon fresko", "categoria": "Varios", "precio": 75, "precio_transf": 98, "stock": 400.0, "descripcion": "Condimentos - Se vende por unidad", "unidad": "unidad"}, {"nombre": "sazon ricompleto", "categoria": "Varios", "precio": 150, "precio_transf": 195, "stock": 9.0, "descripcion": "Condimentos - Se vende por unidad", "unidad": "unidad"}, {"nombre": "Sazón CominoCPimienta", "categoria": "Varios", "precio": 100, "precio_transf": 130, "stock": 50.0, "descripcion": "Condimentos - Se vende por unidad", "unidad": "unidad"}, {"nombre": "caramelos de leche", "categoria": "Varios", "precio": 35, "precio_transf": 46, "stock": 107.0, "descripcion": "Confituras - Se vende por unidad", "unidad": "unidad"}, {"nombre": "galletas cremebite", "categoria": "Varios", "precio": 240, "precio_transf": 312, "stock": 4.0, "descripcion": "Confituras - Se vende por unidad", "unidad": "unidad"}, {"nombre": "Galletas de Soda", "categoria": "Varios", "precio": 300, "precio_transf": 390, "stock": 2.0, "descripcion": "Confituras - Se vende por unidad", "unidad": "unidad"}, {"nombre": "Galletas Halo's", "categoria": "Varios", "precio": 120, "precio_transf": 156, "stock": 37.0, "descripcion": "Confituras - Se vende por unidad", "unidad": "unidad"}, {"nombre": "Jaba Nylon", "categoria": "Varios", "precio": 20, "precio_transf": 26, "stock": 99.0, "descripcion": "Varios - Se vende por unidad", "unidad": "unidad"}, {"nombre": "vinagre", "categoria": "Varios", "precio": 700, "precio_transf": 800, "stock": 3.0, "descripcion": "Condimentos - Se vende por unidad", "unidad": "unidad"}, {"nombre": "Sazon Cerdito", "categoria": "Varios", "precio": 120, "precio_transf": 156, "stock": 4.0, "descripcion": "Condimentos - Se vende por unidad", "unidad": "unidad"}, {"nombre": "Bombones", "categoria": "Varios", "precio": 50, "precio_transf": 65, "stock": 40.0, "descripcion": "Confituras - Se vende por unidad", "unidad": "unidad"}, {"nombre": "Picadillo MDM", "categoria": "Varios", "precio": 650, "precio_transf": 900, "stock": 7.0, "descripcion": "Cárnicos - Se vende por Lb", "unidad": "Lb"}, {"nombre": "Comino con Pimienta", "categoria": "Varios", "precio": 0, "precio_transf": 0, "stock": 45.0, "descripcion": "Condimentos - Se vende por unidad", "unidad": "unidad"}, {"nombre": "Sal", "categoria": "Varios", "precio": 300, "precio_transf": 390, "stock": 8.5, "descripcion": "Condimentos - Se vende por kg", "unidad": "kg"}, {"nombre": "Salami", "categoria": "Varios", "precio": 0, "precio_transf": 0, "stock": 17.0, "descripcion": "Cárnicos - Se vende por unidad", "unidad": "unidad"}, {"nombre": "Sazon Ricompleto 6g", "categoria": "Varios", "precio": 150, "precio_transf": 195, "stock": 29.0, "descripcion": "Condimentos - Se vende por unidad", "unidad": "unidad"}, {"nombre": "caramelo mentolado", "categoria": "Varios", "precio": 0, "precio_transf": 0, "stock": 400.0, "descripcion": "Confituras - Se vende por unidad", "unidad": "unidad"}, {"nombre": "Sazon Tomate", "categoria": "Varios", "precio": 0, "precio_transf": 0, "stock": 9.0, "descripcion": "Condimentos - Se vende por unidad", "unidad": "unidad"}, {"nombre": "Galleta Vaquita", "categoria": "Varios", "precio": 0, "precio_transf": 0, "stock": 17.0, "descripcion": "Confituras - Se vende por unidad", "unidad": "unidad"}, {"nombre": "caldito de pollo", "categoria": "Varios", "precio": 0, "precio_transf": 0, "stock": 299.0, "descripcion": "Condimentos - Se vende por unidad", "unidad": "unidad"}, {"nombre": "Detergente 500gr Defá", "categoria": "Varios", "precio": 1100, "precio_transf": 1430, "stock": 2.0, "descripcion": "Aseo - Se vende por unidad", "unidad": "unidad"}, {"nombre": "Detergente 1kg Defá", "categoria": "Varios", "precio": 1900, "precio_transf": 2470, "stock": 1.0, "descripcion": "Aseo - Se vende por unidad", "unidad": "unidad"}, {"nombre": "Sazón Royal Tropical", "categoria": "Varios", "precio": 70, "precio_transf": 91, "stock": 20.0, "descripcion": "Condimentos - Se vende por unidad", "unidad": "unidad"}, {"nombre": "Sazón Mimi", "categoria": "Varios", "precio": 70, "precio_transf": 91, "stock": 16.0, "descripcion": "Condimentos - Se vende por unidad", "unidad": "unidad"}, {"nombre": "Sazón Royal con Annato", "categoria": "Varios", "precio": 70, "precio_transf": 91, "stock": 3.0, "descripcion": "Condimentos - Se vende por unidad", "unidad": "unidad"}, {"nombre": "Sazón Ranchera", "categoria": "Varios", "precio": 90, "precio_transf": 117, "stock": 14.0, "descripcion": "Condimentos - Se vende por unidad", "unidad": "unidad"}, {"nombre": "Sazón Mina", "categoria": "Varios", "precio": 50, "precio_transf": 65, "stock": 12.0, "descripcion": "Condimentos - Se vende por unidad", "unidad": "unidad"}, {"nombre": "Sazón Golden Beef", "categoria": "Varios", "precio": 90, "precio_transf": 117, "stock": 14.0, "descripcion": "Condimentos - Se vende por unidad", "unidad": "unidad"}, {"nombre": "Bolso Vima", "categoria": "Varios", "precio": 240, "precio_transf": 312, "stock": 4.0, "descripcion": "Varios - Se vende por unidad", "unidad": "unidad"}], "actualizado": "2026-10-22"};
+function fmt(n){return '$'+Math.round(n).toLocaleString('es')}
+function tab(id,btn){document.querySelectorAll('.seccion').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active');document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));btn.classList.add('active');}
+function topHtml(items){const max=Math.max(...items.map(i=>i.unidades));return items.map(i=>'<div class="top-item"><div><b>'+i.producto+'</b><div class="barra"><div style="width:'+Math.round(i.unidades/max*100)+'%"></div></div></div><div style="text-align:right"><div>'+i.unidades+' u</div><div style="color:#ec4899;font-weight:700">'+fmt(i.total)+'</div></div></div>').join('');}
+document.getElementById('topv').innerHTML=topHtml(D.resumen.top_vendidos);
+document.getElementById('topc').innerHTML=topHtml(D.resumen.top_comprados);
+let catFiltro='Todos',busqueda='';
+const chipsEl=document.getElementById('chips');
+chipsEl.innerHTML='<button class="chip active" onclick="setCat(\'Todos\',this)">Todos</button>'+D.resumen.categorias.map(c=>'<button class="chip" onclick="setCat(\''+c+'\',this)">'+c+'</button>').join('');
+function setCat(c,btn){catFiltro=c;document.querySelectorAll('.chip').forEach(x=>x.classList.remove('active'));btn.classList.add('active');filtrar();}
+function filtrar(){busqueda=document.getElementById('buscar').value.toLowerCase();const el=document.getElementById('prods');const lista=D.catalogo.filter(p=>(catFiltro==='Todos'||p.categoria===catFiltro)&&p.nombre.toLowerCase().includes(busqueda));el.innerHTML=lista.map(p=>{const pv=p.precio>0?fmt(p.precio):'A consultar';const pt=p.precio_transf>0?fmt(p.precio_transf):'';return '<div class="prod"><div class="foto">🍬</div><div class="info"><div class="nombre">'+p.nombre+'</div><span class="cat">'+p.categoria+'</span><div class="desc">'+p.descripcion+'</div><div class="precio">'+pv+'</div>'+(pt?'<div class="precio-t">Transf: '+pt+'</div>':'')+'<div class="stock">'+p.stock+' '+p.unidad+'s</div></div></div>';}).join('')||'<p>Sin resultados</p>';}
+filtrar();
+</script>
+</body>
+</html>
