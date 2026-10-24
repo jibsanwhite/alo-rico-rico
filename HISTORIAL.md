@@ -22,3 +22,12 @@
 - Código separado de los datos
 - Datos de ejemplo para demo pública
 - Documentación del proyecto
+
+## 2026-10-24 11:46 CDT — Sistema de usuarios + historial de precios
+- Codigo.gs actualizado: usuarios y roles (admin, supervisor, cliente),
+  sesiones, bloqueo por intentos, y registro de errores.
+- Nuevo Seguridad.gs: toda la seguridad en archivo separado, sin claves
+  en el código (las cuentas se crean desde la página web).
+- El historial del sistema registra ahora también los cambios de precios
+  (qué producto cambió y de qué valor a cuál), no solo errores.
+- La demo pública sigue con datos de ejemplo y sin código de admin.
