@@ -1,6 +1,12 @@
-# 🍬 Alo Rico Rico - Sistema de Gestión Web
+# Sistema de gestión web para bodegas
 
 Sistema web de gestión para pequeño negocio: panel con KPIs, catálogo de productos, control de stock, registro de ventas, edición de precios y gestión de usuarios con roles.
+
+## 🏪 BodegaControl
+
+BodegaControl es la aplicación desarrollada a partir de este repositorio: la versión completa de pago para bodegas y pequeños comercios. Incluye todo lo de este repo, más corte de caja, pedidos con pago confirmado (efectivo, transferencia, Transfermóvil, Enzona, QvaPay u otro), catálogo editable desde la página, instalación y configuración, soporte y actualizaciones, con una licencia que nunca bloquea el negocio.
+
+La versión gratuita de este repositorio lleva solo datos de ejemplo: cada negocio carga sus propios datos al instalarla. La página de presentación de BodegaControl está pendiente de publicación.
 
 ## 🚀 Demo
 
