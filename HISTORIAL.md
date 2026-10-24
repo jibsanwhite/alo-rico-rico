@@ -31,3 +31,8 @@
 - El historial del sistema registra ahora también los cambios de precios
   (qué producto cambió y de qué valor a cuál), no solo errores.
 - La demo pública sigue con datos de ejemplo y sin código de admin.
+
+## 2026-10-24 11:56 CDT — README actualizado
+- README.md reescrito con las funciones actuales: usuarios y roles,
+  sesiones, bloqueo anti fuerza bruta, edición de precios, historial
+  interno (errores + cambios de precios) y estructura real de archivos.
