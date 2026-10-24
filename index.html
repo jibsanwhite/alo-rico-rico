@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Alo Rico Rico - Gestión</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--rosa:#ec4899;--azul:#3b82f6;--verde:#16a34a;--rojo:#dc2626;--gris:#6b7280}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#f8fafc;color:#1f2937;min-height:100vh}
+header{background:linear-gradient(135deg,var(--rosa),var(--azul));color:#fff;padding:1rem;text-align:center}
+header h1{font-size:1.4rem;font-weight:800}
+header p{font-size:.78rem;opacity:.92;margin-top:.2rem}
+nav{display:flex;background:#fff;box-shadow:0 2px 8px rgba(0,0,0,.08);position:sticky;top:0;z-index:20}
+nav button{flex:1;padding:.85rem .3rem;border:none;background:#fff;font-size:.82rem;cursor:pointer;color:var(--gris);border-bottom:3px solid transparent;font-weight:600}
+nav button.active{color:var(--rosa);border-bottom-color:var(--rosa)}
+main{padding:.9rem;max-width:1000px;margin:0 auto;padding-bottom:2rem}
+.seccion{display:none}.seccion.active{display:block}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.7rem;margin-bottom:1rem}
+.kpi{background:#fff;border-radius:14px;padding:.9rem;box-shadow:0 2px 10px rgba(0,0,0,.06);text-align:center;border-top:4px solid var(--rosa)}
+.kpi.azul{border-top-color:var(--azul)}.kpi.verde{border-top-color:var(--verde)}
+.kpi .v{font-size:1.35rem;font-weight:800;color:#111827}
+.kpi .e{font-size:.7rem;color:var(--gris);margin-top:.25rem;text-transform:uppercase}
+.kpi .s{font-size:.72rem;margin-top:.2rem;font-weight:600}
+.card{background:#fff;border-radius:14px;padding:1rem;box-shadow:0 2px 10px rgba(0,0,0,.06);margin-bottom:1rem}
+.card h2{font-size:1rem;margin-bottom:.7rem;color:#374151}
+canvas.graf{width:100%;height:220px}
+.barra{height:10px;background:#f3f4f6;border-radius:5px;overflow:hidden;margin-top:.3rem}
+.barra>div{height:100%;background:linear-gradient(90deg,var(--rosa),var(--azul));border-radius:5px}
+.fila{display:flex;justify-content:space-between;align-items:center;padding:.55rem 0;border-bottom:1px solid #f3f4f6;font-size:.86rem;gap:.5rem}
+.fila:last-child{border-bottom:none}
+.tag{font-size:.68rem;font-weight:700;padding:.15rem .55rem;border-radius:10px;white-space:nowrap}
+.tag.ok{background:#dcfce7;color:#166534}.tag.bajo{background:#fef3c7;color:#92400e}.tag.crit{background:#fee2e2;color:#991b1b}.tag.info{background:#dbeafe;color:#1e40af}
+.buscador{width:100%;padding:.75rem;border:2px solid #fbcfe8;border-radius:12px;font-size:.95rem;margin-bottom:.7rem;outline:none}
+.chips{display:flex;gap:.45rem;overflow-x:auto;padding-bottom:.5rem;margin-bottom:.7rem}
+.chip{white-space:nowrap;padding:.45rem .95rem;border-radius:20px;border:2px solid #e5e7eb;background:#fff;cursor:pointer;font-size:.8rem;font-weight:600;color:var(--gris)}
+.chip.active{background:var(--rosa);color:#fff;border-color:var(--rosa)}
+.prods{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:.7rem}
+.prod{background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 2px 10px rgba(0,0,0,.06)}
+.prod .foto{height:95px;background:linear-gradient(135deg,#fce7f3,#dbeafe);display:flex;align-items:center;justify-content:center;font-size:2.2rem}
+.prod .inf{padding:.65rem}
+.prod .nom{font-weight:700;font-size:.86rem}
+.prod .cat{font-size:.66rem;color:#fff;background:#a78bfa;border-radius:8px;padding:.12rem .5rem;display:inline-block;margin:.3rem 0;font-weight:600}
+.prod .pre{font-weight:800;color:var(--rosa);font-size:1.02rem}
+.prod .prt{font-size:.72rem;color:var(--azul);font-weight:600}
+.prod .stk{font-size:.7rem;color:var(--verde);margin-top:.25rem;font-weight:600}
+table{width:100%;border-collapse:collapse;font-size:.82rem}
+th,td{padding:.55rem .4rem;text-align:left;border-bottom:1px solid #f3f4f6}
+th{background:#fdf2f8;color:var(--rosa);font-weight:700;font-size:.75rem;text-transform:uppercase}
+.num{text-align:right}
+footer{text-align:center;padding:1.2rem;color:#9ca3af;font-size:.72rem}
+.margen{font-size:.72rem;color:var(--gris)}
+</style>
+</head>
+<body>
+<header><h1>🍬 Alo Rico Rico</h1><p>Sistema de gestión · Actualizado: 23/10/2026 18:44</p></header>
+<nav>
+<button class="active" onclick="tab('dash',this)">📊 Panel</button>
+<button onclick="tab('cat',this)">🛍️ Catálogo</button>
+<button onclick="tab('stk',this)">📦 Stock</button>
+<button onclick="tab('vta',this)">💰 Ventas</button>
+<button id="btnAdmin" style="display:none" onclick="tab('adm',this)">🔧 Admin</button>
+</nav>
+<main>
+<div id="dash" class="seccion active">
+<div class="kpis">
+<div class="kpi"><div class="v">$50,000</div><div class="e">Ventas totales</div><div class="s" style="color:var(--verde)">45 operaciones</div></div></div>
+<div class="kpi verde"><div class="v">$39,792</div><div class="e">Utilidad bruta</div><div class="s" style="color:var(--verde)">Margen 25.1%</div></div>
+<div class="kpi azul"><div class="v">$210,665</div><div class="e">Inventario a venta</div><div class="s margen">Costo: $156,984</div></div>
+<div class="kpi"><div class="v">40</div><div class="e">Productos con stock</div><div class="s" style="color:var(--rojo)">9 con stock bajo</div></div>
+</div>
+<div class="card"><h2>📈 Ventas por día (últimos 14 días)</h2><canvas class="graf" id="gDias"></canvas></div>
+<div class="card"><h2>🏆 Top 10 por utilidad</h2><div id="topU"></div></div>
+<div class="card"><h2>🗂️ Ventas por categoría</h2><div id="porCat"></div></div>
+</div>
+<div id="cat" class="seccion">
+<input class="buscador" id="buscar" placeholder="🔍 Buscar producto..." oninput="filtrar()">
+<div class="chips" id="chips"></div>
+<div class="prods" id="prods"></div>
+</div>
+<div id="stk" class="seccion">
+<div class="card"><h2>⚠️ Stock bajo (≤ 5 unidades)</h2><div id="tBajo"></div></div>
+<div class="card"><h2>🚫 Agotados con historial de venta</h2><div id="tAgot"></div></div>
+<div class="card"><h2>❓ Sin precio de venta</h2><div id="tSinP"></div></div>
+</div>
+<div id="vta" class="seccion">
+<div class="card"><h2>🧾 Últimas ventas registradas</h2><div style="overflow-x:auto"><table>
+<tr><th>Fecha</th><th>Producto</th><th class="num">Cant.</th><th class="num">Precio</th><th class="num">Total</th></tr>
+<tbody id="tVent"></tbody></table></div></div>
+</div>
+<div id="adm" class="seccion">
+<div class="card"><h2>🔧 Administración</h2>
+<div id="adminLoginBox">
+<p class="margen" style="margin-bottom:.7rem">Ingresa tu clave para editar precios.</p>
+<input class="buscador" type="password" id="adminPass" placeholder="Clave de administrador">
+<button class="chip active" style="width:100%;padding:.8rem" id="adminBtnEntrar">Entrar</button>
+<p id="adminError" style="color:var(--rojo);font-size:.82rem;margin-top:.5rem"></p>
+</div>
+<div id="adminPanelBox" style="display:none">
+<p class="margen" style="margin-bottom:.7rem">Modifica los precios y toca Guardar.</p>
+<input class="buscador" id="adminBuscar" placeholder="🔍 Buscar producto...">
+<div id="adminLista"></div>
+<button class="chip active" style="width:100%;padding:.9rem;margin-top:.8rem;font-size:1rem" id="adminBtnGuardar">💾 Guardar cambios</button>
+<p id="adminMsg" style="font-size:.82rem;margin-top:.5rem"></p>
+</div>
+</div>
+</div>
+</main>
+<footer>Alo Rico Rico · Precios en CUP · Sistema profesional de gestión<br><a href="#" id="adminFootLink" style="color:#e5e7eb;font-size:.65rem;text-decoration:none;">⚙️</a></footer>
+<script>
+var D = {"_nota":"DATOS FICTICIOS PARA DEMO - No usar datos reales del negocio aquí","resumen":{"total_ventas":50000,"utilidad":15000,"margen_pct":30.0,"val_costo":80000,"val_venta":120000,"num_productos":12,"num_ventas":45,"ventas_por_dia":[{"fecha":"2026-10-10","total":3200},{"fecha":"2026-10-11","total":4100},{"fecha":"2026-10-12","total":2800}],"top_utilidad":[{"producto":"Producto Ejemplo A","utilidad":2500,"unidades":50},{"producto":"Producto Ejemplo B","utilidad":1800,"unidades":30}],"stock_bajo":[{"nombre":"Producto Ejemplo C","stock":3,"precio":100}],"sin_precio":[],"agotados":[],"por_categoria":[{"categoria":"Alimentos","unidades":60,"ingresos":15000},{"categoria":"Bebidas","unidades":20,"ingresos":5000}],"recientes":[{"fecha":"2026-10-12","producto":"Producto Ejemplo A","cantidad":2,"precio":100,"total":200}]},"catalogo":[{"nombre":"Producto Ejemplo A","categoria":"Alimentos","precio":100,"precio_transf":130,"stock":50,"costo":70,"descripcion":"Descripción de ejemplo","unidad":"unidad"},{"nombre":"Producto Ejemplo B","categoria":"Bebidas","precio":80,"precio_transf":104,"stock":30,"costo":55,"descripcion":"Descripción de ejemplo","unidad":"unidad"},{"nombre":"Producto Ejemplo C","categoria":"Alimentos","precio":120,"precio_transf":156,"stock":3,"costo":85,"descripcion":"Descripción de ejemplo","unidad":"unidad"}],"categorias":["Alimentos","Bebidas"],"actualizado":"12/10/2026 10:00"};
+var R = D.resumen;
+function fmt(n){return '$'+Math.round(n).toLocaleString('es');}
+function tab(id,btn){var s=document.querySelectorAll('.seccion');for(var i=0;i<s.length;i++)s[i].classList.remove('active');document.getElementById(id).classList.add('active');var b=document.querySelectorAll('nav button');for(var j=0;j<b.length;j++)b[j].classList.remove('active');btn.classList.add('active');}
+(function(){
+var c=document.getElementById('gDias');if(!c)return;var ctx=c.getContext('2d');
+var W=c.width=c.offsetWidth*2,H=c.height=440;
+var data=R.ventas_por_dia,max=1;
+for(var i=0;i<data.length;i++)if(data[i].total>max)max=data[i].total;
+var bw=W/data.length;
+for(var i=0;i<data.length;i++){var dd=data[i];var h=(dd.total/max)*(H-90),x=i*bw+bw*0.15,y=H-50-h;
+var g=ctx.createLinearGradient(0,y,0,y+h);g.addColorStop(0,'#ec4899');g.addColorStop(1,'#3b82f6');
+ctx.fillStyle=g;ctx.fillRect(x,y,bw*0.7,h);
+ctx.fillStyle='#6b7280';ctx.font='18px sans-serif';ctx.textAlign='center';
+var fp=dd.fecha.split('-');ctx.fillText(fp[2]+'/'+fp[1],x+bw*0.35,H-22);}
+})();
+(function(){
+var max=1;for(var i=0;i<R.top_utilidad.length;i++)if(R.top_utilidad[i].utilidad>max)max=R.top_utilidad[i].utilidad;
+var h='';for(var i=0;i<R.top_utilidad.length;i++){var t=R.top_utilidad[i];
+h+='<div class="fila"><div><b>'+t.producto+'</b> <span class="margen">'+t.unidades+' u</span><div class="barra"><div style="width:'+Math.round(t.utilidad/max*100)+'%"></div></div></div><div class="num" style="color:var(--verde);font-weight:800">'+fmt(t.utilidad)+'</div></div>';}
+document.getElementById('topU').innerHTML=h;
+})();
+(function(){
+var max=1;for(var i=0;i<R.por_categoria.length;i++)if(R.por_categoria[i].ingresos>max)max=R.por_categoria[i].ingresos;
+var h='';for(var i=0;i<R.por_categoria.length;i++){var cc=R.por_categoria[i];
+h+='<div class="fila"><div><b>'+cc.categoria+'</b> <span class="margen">'+cc.unidades+' u</span><div class="barra"><div style="width:'+Math.round(cc.ingresos/max*100)+'%"></div></div></div><div class="num" style="font-weight:700">'+fmt(cc.ingresos)+'</div></div>';}
+document.getElementById('porCat').innerHTML=h;
+})();
+(function(){
+var h='';if(R.stock_bajo.length==0)h='<p class="margen">Sin alertas</p>';
+for(var i=0;i<R.stock_bajo.length;i++){var p=R.stock_bajo[i];
+h+='<div class="fila"><div><b>'+p.nombre+'</b></div><div><span class="tag '+(p.stock<=2?'crit':'bajo')+'">'+p.stock+' u</span></div></div>';}
+document.getElementById('tBajo').innerHTML=h;
+h='';if(R.agotados.length==0)h='<p class="margen">Sin agotados</p>';
+for(var i=0;i<R.agotados.length;i++){var p=R.agotados[i];
+h+='<div class="fila"><div><b>'+p.nombre+'</b></div><div><span class="tag crit">0 u</span> <span class="margen">vendidos: '+p.vendidos+'</span></div></div>';}
+document.getElementById('tAgot').innerHTML=h;
+h='';if(R.sin_precio.length==0)h='<p class="margen">Todos tienen precio</p>';
+for(var i=0;i<R.sin_precio.length;i++){var p=R.sin_precio[i];
+h+='<div class="fila"><div><b>'+p.nombre+'</b></div><div><span class="tag info">'+p.stock+' u</span></div></div>';}
+document.getElementById('tSinP').innerHTML=h;
+})();
+(function(){
+var h='';for(var i=0;i<R.recientes.length;i++){var v=R.recientes[i];
+h+='<tr><td>'+v.fecha+'</td><td>'+v.producto+'</td><td class="num">'+v.cantidad+'</td><td class="num">'+fmt(v.precio)+'</td><td class="num"><b>'+fmt(v.total)+'</b></td></tr>';}
+document.getElementById('tVent').innerHTML=h;
+})();
+var catF='Todos';
+(function(){
+var chipsEl=document.getElementById('chips');
+var h='<button class="chip active" data-c="Todos">Todos</button>';
+for(var i=0;i<D.categorias.length;i++){h+='<button class="chip" data-c="'+D.categorias[i]+'">'+D.categorias[i]+'</button>';}
+chipsEl.innerHTML=h;
+var btns=chipsEl.querySelectorAll('.chip');
+for(var k=0;k<btns.length;k++){btns[k].addEventListener('click',function(){setCat(this.getAttribute('data-c'),this);});}
+})();
+function setCat(c,b){catF=c;var x=document.querySelectorAll('.chip');for(var i=0;i<x.length;i++)x[i].classList.remove('active');b.classList.add('active');filtrar();}
+function filtrar(){
+var q=document.getElementById('buscar').value.toLowerCase();
+var lista=[];for(var i=0;i<D.catalogo.length;i++){var p=D.catalogo[i];
+if((catF==='Todos'||p.categoria===catF)&&p.nombre.toLowerCase().indexOf(q)>=0)lista.push(p);}
+var h='';for(var i=0;i<lista.length;i++){var p=lista[i];
+h+='<div class="prod"><div class="foto">🍬</div><div class="inf"><div class="nom">'+p.nombre+'</div><span class="cat">'+p.categoria+'</span><div class="pre">'+fmt(p.precio)+'</div><div class="prt">Transf: '+fmt(p.precio_transf)+'</div><div class="stk">'+p.stock+' '+p.unidad+'s</div></div></div>';}
+if(!h)h='<p class="margen">Sin resultados</p>';
+document.getElementById('prods').innerHTML=h;
+}
+filtrar();
+</script>
+<script>
+/* ===== ADMIN - bloque aislado, no interfiere con el código principal ===== */
+(function(){
+try{
+var SCRIPT_URL='__SCRIPT_URL__';
+var btn=document.getElementById('btnAdmin');
+function mostrarAdmin(){btn.style.display='';tab('adm',btn);}
+// Triple-tap en header
+var taps=0,lastTap=0;
+var hdr=document.querySelector('header');
+if(hdr){hdr.addEventListener('click',function(){var n=Date.now();if(n-lastTap<500){taps++;}else{taps=1;}lastTap=n;if(taps>=3){mostrarAdmin();taps=0;}});}
+// Enlace en footer
+var footLink=document.getElementById('adminFootLink');
+if(footLink){footLink.addEventListener('click',function(e){e.preventDefault();mostrarAdmin();});}
+
+var autenticado=false,precios={};
+document.getElementById('adminBtnEntrar').addEventListener('click',function(){
+  var pass=document.getElementById('adminPass').value;
+  var errEl=document.getElementById('adminError');errEl.textContent='';
+  if(SCRIPT_URL.indexOf('__')>=0){errEl.textContent='Falta actualizar el código en Apps Script.';return;}
+  fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({password:pass,action:'get_precios'})})
+  .then(function(r){return r.json();})
+  .then(function(dd){
+    if(dd.ok){autenticado=true;document.getElementById('adminPass').value='';
+      document.getElementById('adminLoginBox').style.display='none';
+      document.getElementById('adminPanelBox').style.display='';
+      precios={};
+      for(var i=0;i<D.catalogo.length;i++){var p=D.catalogo[i];precios[p.nombre]=dd.overrides[p.nombre]||{precio:p.precio,costo:p.costo};}
+      dibujarLista('');
+    }else{errEl.textContent=dd.error||'Error';}
+  }).catch(function(){errEl.textContent='Error de conexión';});
+});
+document.getElementById('adminBuscar').addEventListener('input',function(){dibujarLista(this.value.toLowerCase());});
+function dibujarLista(q){
+  var h='';
+  for(var i=0;i<D.catalogo.length;i++){var p=D.catalogo[i];
+    if(p.nombre.toLowerCase().indexOf(q)<0)continue;
+    var pr=precios[p.nombre]||{precio:p.precio,costo:p.costo};
+    h+='<div class="fila"><div><b>'+p.nombre+'</b></div><div style="display:flex;gap:.3rem">'
+      +'<input type="number" data-n="'+p.nombre+'" data-f="costo" value="'+pr.costo+'" style="width:75px;padding:.4rem;border:2px solid #e5e7eb;border-radius:8px">'
+      +'<input type="number" data-n="'+p.nombre+'" data-f="precio" value="'+pr.precio+'" style="width:75px;padding:.4rem;border:2px solid #fbcfe8;border-radius:8px">'
+      +'</div></div>';
+  }
+  document.getElementById('adminLista').innerHTML=h||'<p class="margen">Sin resultados</p>';
+  var inputs=document.querySelectorAll('#adminLista input');
+  for(var j=0;j<inputs.length;j++){inputs[j].addEventListener('change',function(){
+    var n=this.getAttribute('data-n'),f=this.getAttribute('data-f');
+    if(!precios[n])precios[n]={};precios[n][f]=parseFloat(this.value)||0;
+  });}
+}
+document.getElementById('adminBtnGuardar').addEventListener('click',function(){
+  var pass=prompt('Confirma tu clave:');if(!pass)return;
+  var msg=document.getElementById('adminMsg');msg.textContent='Guardando...';msg.style.color='';
+  fetch(SCRIPT_URL,{method:'POST',body:JSON.stringify({password:pass,action:'save_precios',precios:precios})})
+  .then(function(r){return r.json();})
+  .then(function(dd){
+    if(dd.ok){msg.textContent='✅ Guardado. Recarga la página.';msg.style.color='var(--verde)';}
+    else{msg.textContent='❌ '+(dd.error||'Error');msg.style.color='var(--rojo)';}
+  }).catch(function(){msg.textContent='❌ Error de conexión';msg.style.color='var(--rojo)';});
+});
+}catch(e){/* admin no interfiere si falla */}
+})();
+</script>
+</body>
+</html>

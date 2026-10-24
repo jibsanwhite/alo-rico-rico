@@ -1,0 +1,40 @@
+{
+  "_nota": "DATOS FICTICIOS PARA DEMO - No usar datos reales del negocio aquí",
+  "resumen": {
+    "total_ventas": 50000,
+    "utilidad": 15000,
+    "margen_pct": 30.0,
+    "val_costo": 80000,
+    "val_venta": 120000,
+    "num_productos": 12,
+    "num_ventas": 45,
+    "ventas_por_dia": [
+      {"fecha": "2026-10-10", "total": 3200},
+      {"fecha": "2026-10-11", "total": 4100},
+      {"fecha": "2026-10-12", "total": 2800}
+    ],
+    "top_utilidad": [
+      {"producto": "Producto Ejemplo A", "utilidad": 2500, "unidades": 50},
+      {"producto": "Producto Ejemplo B", "utilidad": 1800, "unidades": 30}
+    ],
+    "stock_bajo": [
+      {"nombre": "Producto Ejemplo C", "stock": 3, "precio": 100}
+    ],
+    "sin_precio": [],
+    "agotados": [],
+    "por_categoria": [
+      {"categoria": "Alimentos", "unidades": 60, "ingresos": 15000},
+      {"categoria": "Bebidas", "unidades": 20, "ingresos": 5000}
+    ],
+    "recientes": [
+      {"fecha": "2026-10-12", "producto": "Producto Ejemplo A", "cantidad": 2, "precio": 100, "total": 200}
+    ]
+  },
+  "catalogo": [
+    {"nombre": "Producto Ejemplo A", "categoria": "Alimentos", "precio": 100, "precio_transf": 130, "stock": 50, "costo": 70, "descripcion": "Descripción de ejemplo", "unidad": "unidad"},
+    {"nombre": "Producto Ejemplo B", "categoria": "Bebidas", "precio": 80, "precio_transf": 104, "stock": 30, "costo": 55, "descripcion": "Descripción de ejemplo", "unidad": "unidad"},
+    {"nombre": "Producto Ejemplo C", "categoria": "Alimentos", "precio": 120, "precio_transf": 156, "stock": 3, "costo": 85, "descripcion": "Descripción de ejemplo", "unidad": "unidad"}
+  ],
+  "categorias": ["Alimentos", "Bebidas"],
+  "actualizado": "12/10/2026 10:00"
+}
