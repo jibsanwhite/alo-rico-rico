@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BodegaControl · Predicción de utilidad (demo)</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{--verde:#14532d;--verde2:#166534;--ambar:#f59e0b;--ambar2:#d97706;--gris:#6b7280;--fondo:#f8fafc}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:var(--fondo);color:#1f2937;min-height:100vh}
+header{background:linear-gradient(135deg,var(--verde),var(--verde2));color:#fff;padding:1.2rem 1rem;text-align:center}
+header h1{font-size:1.4rem;font-weight:800}
+header p{font-size:.8rem;opacity:.92;margin-top:.3rem}
+main{padding:.9rem;max-width:1000px;margin:0 auto;padding-bottom:2rem}
+.card{background:#fff;border-radius:14px;padding:1rem;box-shadow:0 2px 10px rgba(0,0,0,.06);margin-bottom:1rem}
+.card h2{font-size:1rem;margin-bottom:.7rem;color:#374151}
+.card p{font-size:.85rem;line-height:1.5;color:#4b5563}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.7rem;margin:1rem 0}
+.kpi{background:#fff;border-radius:14px;padding:.9rem;box-shadow:0 2px 10px rgba(0,0,0,.06);text-align:center;border-top:4px solid var(--verde)}
+.kpi.ambar{border-top-color:var(--ambar)}
+.kpi .v{font-size:1.35rem;font-weight:800;color:#111827}
+.kpi .e{font-size:.7rem;color:var(--gris);margin-top:.25rem;text-transform:uppercase}
+label.op{display:block;font-size:.88rem;margin:.45rem 0;cursor:pointer;line-height:1.4}
+label.op b{color:#111827}
+#aviso{margin-top:.6rem;font-size:.85rem;font-weight:700;color:var(--ambar2);min-height:1.2em}
+canvas.graf{width:100%;height:340px;display:block}
+.leyenda{font-size:.78rem;color:var(--gris);margin-top:.4rem}
+.leyenda i{display:inline-block;width:22px;height:4px;vertical-align:middle;margin:0 .3rem}
+table{width:100%;border-collapse:collapse;font-size:.82rem;margin-top:.5rem}
+th,td{padding:.45rem .3rem;text-align:right;border-bottom:1px solid #e5e7eb}
+th:first-child,td:first-child{text-align:left}
+th{color:var(--gris);font-size:.72rem;text-transform:uppercase}
+.tope{color:var(--ambar2);font-weight:700}
+.nota{background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:.7rem .9rem;font-size:.82rem;line-height:1.5;color:#92400e}
+footer{font-size:.75rem;color:var(--gris);text-align:center;padding:1rem}
+</style>
+</head>
+<body>
+<header>
+<h1>📈 Predicción de utilidad</h1>
+<p>Módulo independiente · Demo con datos inventados de ejemplo — no son datos reales de ningún negocio</p>
+</header>
+<main>
+<section class="card">
+<h2>Modelo de predicción</h2>
+<label class="op"><input type="radio" name="modelo" value="actual" checked> <b>Modelo actual:</b> bottom-up por producto — tasa promedio de los últimos 14 días × días restantes, con tope en el stock que queda, × margen (precio − costo).</label>
+<label class="op"><input type="radio" name="modelo" value="historia"> <b>Modelo con historia:</b> bottom-up + ajuste estacional por día de semana — la tasa diaria se ajusta según el factor histórico de cada día (lunes a domingo).</label>
+<label class="op"><input type="checkbox" id="histCorto"> Simular historial corto (menos de 8 semanas) para probar el respaldo</label>
+<p id="aviso"></p>
+<div class="kpis">
+<div class="kpi"><div class="v" id="kpiReal">—</div><div class="e">Utilidad real acumulada</div></div>
+<div class="kpi ambar"><div class="v" id="kpiProy">—</div><div class="e">Utilidad proyectada (días restantes)</div></div>
+<div class="kpi"><div class="v" id="kpiEst">—</div><div class="e">Utilidad estimada del mes</div></div>
+</div>
+<p>La utilidad es bruta: ventas menos costo de lo vendido. La línea real usa las ventas registradas; la estimada añade la proyección de los días que faltan.</p>
+</section>
+
+<section class="card">
+<h2>Utilidad real vs estimada del mes</h2>
+<canvas class="graf" id="graf"></canvas>
+<p class="leyenda"><i style="background:#166534"></i>Real acumulada <i style="background:#f59e0b"></i>Estimada (proyección desde hoy) · La marca vertical indica el día de hoy.</p>
+</section>
+
+<section class="card">
+<h2>Desglose por producto (proyección)</h2>
+<table>
+<thead><tr><th>Producto</th><th>Tasa/día</th><th>Unid. proy.</th><th>Stock</th><th>Precio</th><th>Costo</th><th>Margen</th><th>Util. proy.</th></tr></thead>
+<tbody id="tabla"></tbody>
+</table>
+<p style="margin-top:.5rem">Los productos sin ventas recientes aportan 0. Cuando la proyección supera el stock, se aplica el tope y se marca.</p>
+</section>
+
+<section class="card">
+<h2>Cómo funciona cada modelo</h2>
+<p><b>Modelo actual (sin historia).</b> Para cada producto: se calcula su tasa diaria promedio de los últimos 14 días, se multiplica por los días que quedan del mes, se limita al stock disponible y se multiplica por su margen (precio de venta menos costo). La suma de todos los productos es la utilidad proyectada. Funciona desde el primer mes, sin historia previa.</p>
+<p style="margin-top:.5rem"><b>Modelo con historia.</b> Igual que el actual, pero la tasa diaria se ajusta por día de semana: cada día restante usa el factor de su día, calculado como el promedio histórico de ese día dividido entre el promedio general. Así un sábado, que históricamente vende más, proyecta más que un martes. Requiere al menos 8 semanas de historia; si hay menos, el módulo usa el modelo actual y muestra el aviso "Aún sin historia suficiente".</p>
+<p style="margin-top:.5rem"><b>Limitaciones.</b> Es una estimación, no una garantía: supone que el ritmo reciente continúa y que el stock registrado es el real. Si entran compras nuevas o cambia el ritmo de ventas, la estimación cambia al recalcular.</p>
+</section>
+
+<section class="card">
+<div class="nota"><b>Datos de ejemplo.</b> Los tres productos, sus precios, costos, stocks y ventas son inventados para esta demo. Al integrar el módulo en un negocio real, usa las ventas, el stock y los costos reales de ese negocio.</div>
+</section>
+</main>
+<footer>BodegaControl · Módulo de predicción de utilidad (demo independiente)</footer>
+<script>
+// ---------- Datos inventados de ejemplo (no son datos reales) ----------
+var DIAS_MES = 30, HOY = 20, VENTANA = 14, SEMANAS_MIN = 8;
+var FACTOR_DIA = [1.0, 0.95, 0.9, 1.0, 1.05, 1.4, 1.3]; // lunes..domingo
+var PROD = [
+  {nombre: 'Producto Ejemplo A', cat: 'Alimentos', precio: 875, costo: 530, stock: 60, base: 4.0, semilla: 11},
+  {nombre: 'Producto Ejemplo B', cat: 'Bebidas', precio: 1520, costo: 940, stock: 40, base: 2.0, semilla: 23},
+  {nombre: 'Producto Ejemplo C', cat: 'Alimentos', precio: 495, costo: 310, stock: 90, base: 6.0, semilla: 37}
+];
+function mulberry32(a){ return function(){ a |= 0; a = a + 0x6D2B79F5 | 0; var t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function genSerie(p, n, semilla){
+  var rnd = mulberry32(semilla), s = [];
+  for (var i = 0; i < n; i++){
+    var f = FACTOR_DIA[i % 7];
+    s.push(Math.max(0, Math.round(p.base * f * (0.8 + rnd() * 0.4))));
+  }
+  return s;
+}
+var HIST = {}, REAL = {};
+PROD.forEach(function(p){
+  HIST[p.nombre] = genSerie(p, 70, p.semilla);         // 10 semanas, día 1 = lunes
+  REAL[p.nombre] = genSerie(p, HOY, p.semilla + 100);  // días 1..20 del mes, día 1 = lunes
+});
+
+// ---------- Utilidad real acumulada ----------
+function margen(p){ return p.precio - p.costo; }
+var realAcum = [0];
+for (var d = 1; d <= HOY; d++){
+  var tot = 0;
+  PROD.forEach(function(p){ tot += REAL[p.nombre][d - 1] * margen(p); });
+  realAcum[d] = realAcum[d - 1] + tot;
+}
+var REAL_TOTAL = realAcum[HOY];
+
+// ---------- Modelos ----------
+function tasa14(p){
+  var r = REAL[p.nombre].slice(-VENTANA), s = 0;
+  for (var i = 0; i < r.length; i++) s += r[i];
+  return s / r.length;
+}
+function proyectarActual(){
+  return PROD.map(function(p){
+    var tasa = tasa14(p);
+    var bruto = tasa * (DIAS_MES - HOY);
+    var tope = bruto > p.stock;
+    var u = tope ? p.stock : bruto;
+    return {p: p, tasa: tasa, u: u, util: u * margen(p), tope: tope, porDia: null};
+  });
+}
+function factoresDia(p, hist){
+  var prom = 0;
+  for (var i = 0; i < hist.length; i++) prom += hist[i];
+  prom /= hist.length;
+  var f = [];
+  for (var wd = 0; wd < 7; wd++){
+    var s = 0, n = 0;
+    for (var j = 0; j < hist.length; j++){ if (j % 7 === wd){ s += hist[j]; n++; } }
+    f.push(prom > 0 ? (s / n) / prom : 1);
+  }
+  return f;
+}
+function proyectarHistoria(histUso){
+  return PROD.map(function(p){
+    var hist = histUso[p.nombre];
+    var f = factoresDia(p, hist);
+    var tasa = tasa14(p);
+    var porDia = [], u = 0;
+    for (var dd = HOY + 1; dd <= DIAS_MES; dd++){
+      var ud = tasa * f[(dd - 1) % 7];
+      porDia.push(ud); u += ud;
+    }
+    var tope = u > p.stock;
+    if (tope){ var k = p.stock / u; u = p.stock; porDia = porDia.map(function(v){ return v * k; }); }
+    return {p: p, tasa: tasa, u: u, util: u * margen(p), tope: tope, porDia: porDia};
+  });
+}
+
+// ---------- Render ----------
+function fmt(n){ return '$' + Math.round(n).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
+function render(){
+  var modelo = document.querySelector('input[name="modelo"]:checked').value;
+  var corto = document.getElementById('histCorto').checked;
+  var histUso = {};
+  PROD.forEach(function(p){ histUso[p.nombre] = corto ? HIST[p.nombre].slice(-28) : HIST[p.nombre]; });
+  var semanas = histUso[PROD[0].nombre].length / 7;
+  var aviso = '';
+  var proy, camino;
+  if (modelo === 'historia' && semanas >= SEMANAS_MIN){
+    proy = proyectarHistoria(histUso);
+    camino = [];
+    for (var i = 0; i < DIAS_MES - HOY; i++){
+      var s = 0;
+      proy.forEach(function(r){ s += r.porDia[i] * margen(r.p); });
+      camino.push(s);
+    }
+  } else {
+    if (modelo === 'historia'){
+      aviso = 'Aún sin historia suficiente (menos de 8 semanas): se usa el modelo actual.';
+    }
+    proy = proyectarActual();
+    var diaU = 0;
+    proy.forEach(function(r){ diaU += r.util; });
+    diaU /= (DIAS_MES - HOY);
+    camino = [];
+    for (var j = 0; j < DIAS_MES - HOY; j++) camino.push(diaU);
+  }
+  var proyTotal = 0;
+  proy.forEach(function(r){ proyTotal += r.util; });
+  var estimado = REAL_TOTAL + proyTotal;
+  document.getElementById('aviso').textContent = aviso;
+  document.getElementById('kpiReal').textContent = fmt(REAL_TOTAL);
+  document.getElementById('kpiProy').textContent = fmt(proyTotal);
+  document.getElementById('kpiEst').textContent = fmt(estimado);
+  var html = '';
+  proy.forEach(function(r){
+    html += '<tr><td>' + r.p.nombre + '</td><td>' + r.tasa.toFixed(2) + '</td><td>' + r.u.toFixed(1) + (r.tope ? ' <span class="tope">(tope)</span>' : '') + '</td><td>' + r.p.stock + '</td><td>' + fmt(r.p.precio) + '</td><td>' + fmt(r.p.costo) + '</td><td>' + fmt(margen(r.p)) + '</td><td>' + fmt(r.util) + '</td></tr>';
+  });
+  document.getElementById('tabla').innerHTML = html;
+  dibujar(realAcum, camino, estimado);
+}
+
+// ---------- Gráfico (solo líneas y puntos) ----------
+function dibujar(realAcum, camino, estimado){
+  var cv = document.getElementById('graf');
+  var dpr = window.devicePixelRatio || 1;
+  var w = cv.clientWidth || 900, h = 340;
+  cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr);
+  var ctx = cv.getContext('2d');
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  ctx.clearRect(0, 0, w, h);
+  var padL = 70, padR = 16, padT = 14, padB = 30;
+  var iw = w - padL - padR, ih = h - padT - padB;
+  var maxV = estimado * 1.1;
+  function X(d){ return padL + (d - 1) / (DIAS_MES - 1) * iw; }
+  function Y(v){ return padT + ih - (v / maxV) * ih; }
+  ctx.strokeStyle = '#e5e7eb'; ctx.fillStyle = '#6b7280'; ctx.font = '11px sans-serif'; ctx.lineWidth = 1;
+  for (var t = 0; t <= 4; t++){
+    var v = maxV * t / 4, y = Y(v);
+    ctx.beginPath(); ctx.moveTo(padL, y); ctx.lineTo(padL + iw, y); ctx.stroke();
+    ctx.fillText(fmt(v), 4, y + 4);
+  }
+  [1, 5, 10, 15, 20, 25, 30].forEach(function(dd){
+    ctx.fillText('Día ' + dd, X(dd) - 12, h - 8);
+  });
+  ctx.strokeStyle = '#9ca3af'; ctx.setLineDash([4, 4]);
+  ctx.beginPath(); ctx.moveTo(X(HOY), padT); ctx.lineTo(X(HOY), padT + ih); ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = '#374151'; ctx.fillText('hoy', X(HOY) - 8, padT + 12);
+  ctx.strokeStyle = '#166534'; ctx.lineWidth = 3; ctx.lineJoin = 'round';
+  ctx.beginPath();
+  for (var d3 = 1; d3 <= HOY; d3++){
+    var x = X(d3), y = Y(realAcum[d3]);
+    if (d3 === 1) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+  }
+  ctx.stroke();
+  ctx.fillStyle = '#166534';
+  for (var d4 = 1; d4 <= HOY; d4++){
+    ctx.beginPath(); ctx.arc(X(d4), Y(realAcum[d4]), 3.5, 0, Math.PI * 2); ctx.fill();
+  }
+  var acc = realAcum[HOY];
+  var pts = [[HOY, acc]];
+  for (var i2 = 0; i2 < camino.length; i2++){ acc += camino[i2]; pts.push([HOY + 1 + i2, acc]); }
+  ctx.strokeStyle = '#f59e0b'; ctx.lineWidth = 3; ctx.setLineDash([8, 6]);
+  ctx.beginPath();
+  pts.forEach(function(pt, idx){ if (idx === 0) ctx.moveTo(X(pt[0]), Y(pt[1])); else ctx.lineTo(X(pt[0]), Y(pt[1])); });
+  ctx.stroke();
+  ctx.setLineDash([]);
+  ctx.fillStyle = '#f59e0b';
+  pts.forEach(function(pt){
+    ctx.beginPath(); ctx.arc(X(pt[0]), Y(pt[1]), 3.5, 0, Math.PI * 2); ctx.fill();
+  });
+}
+document.querySelectorAll('input[name="modelo"]').forEach(function(el){ el.addEventListener('change', render); });
+document.getElementById('histCorto').addEventListener('change', render);
+window.addEventListener('resize', render);
+render();
+</script>
+</body>
+</html>
